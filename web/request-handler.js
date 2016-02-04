@@ -17,6 +17,7 @@ exports.handleRequest = function (req, res) {
         if(url.base === '') {
           console.log('loading index html');
           serveAssets(res, paths.siteAssets + '/index.html', function(data) {
+            headers['Content-Type'] = 'text/html';
             res.writeHead(200, headers);
             res.end(data);
             return;
@@ -35,6 +36,7 @@ exports.handleRequest = function (req, res) {
           archive.isUrlArchived(url.base, function(exists) {
             if(exists) {
               serveAssets(res, paths.archivedSites + '/' + url.base, function(data) {
+                headers['Content-Type'] = 'text/html';
                 res.writeHead(200, headers);
                 res.end(data);
               }) 
@@ -45,22 +47,30 @@ exports.handleRequest = function (req, res) {
             return;
           });
         }
-        //other stuff with dir /
       }
-      //other stuff with root /
     }
   }
   if(req.method === 'POST') {
-    console.log('Incoming POST!');
     var input = '';
     req.on('data', function(data) {
       input += data;
     })
     req.on('end', function() {
-      var site = input.slice(4);
-      console.log(site);
+      var site = input.slice(4) + '\n';
+      fs.appendFile(paths.list, site, function(err) {
+        if(err) {
+          console.log('Error writing to file!');
+          res.writeHead(500, headers);
+          res.end('Error writing to file');
+        } else {
+          serveAssets(res, paths.siteAssets + '/loading.html', function(data) {
+            headers['Content-Type'] = 'text/html';
+            res.writeHead(302, headers);
+            res.end(data);
+            return;
+          });
+        }
+      })
     })
-    res.end();
   }
 };
-
