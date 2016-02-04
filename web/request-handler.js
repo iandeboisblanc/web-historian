@@ -35,11 +35,7 @@ exports.handleRequest = function (req, res) {
         else if(url.base) {
           archive.isUrlArchived(url.base, function(exists) {
             if(exists) {
-              serveAssets(res, paths.archivedSites + '/' + url.base, function(data) {
-                headers['Content-Type'] = 'text/html';
-                res.writeHead(200, headers);
-                res.end(data);
-              }) 
+              helpers.sendToPage(res, url.base);
             } else {
               res.writeHead(404, headers);
               res.end('File not found!');
@@ -61,7 +57,7 @@ exports.handleRequest = function (req, res) {
         if(is) {
           archive.isUrlArchived(site, function(is) {
             if(is) {
-              //serve page
+              helpers.sendToPage(res, site);
             } else { //if is not archived
               helpers.sendToLoading(res);
             }

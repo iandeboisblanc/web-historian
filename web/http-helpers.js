@@ -31,7 +31,15 @@ exports.sendToLoading = function(res) {
     res.end(data);
     return;
   });
-}
+};
+
+exports.sendToPage = function(res, url) {
+  exports.serveAssets(res, archive.paths.archivedSites + '/' + url, function(data) {
+    headers['Content-Type'] = 'text/html';
+    res.writeHead(200, headers);
+    res.end(data);
+  }); 
+};
 
 
 
