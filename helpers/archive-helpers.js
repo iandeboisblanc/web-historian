@@ -2,6 +2,7 @@ var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
 var http = require('http');
+var request = require('request');
 var helpers = require(__dirname + '/../web/http-helpers.js');
 
 /*
@@ -48,16 +49,16 @@ exports.isUrlInList = function(url, callback) {
 };
 
 exports.addUrlToList = function(url, callback) {
-  exports.isUrlInList(url, function(is) {
-    if(is) {
-      //redirect to webiste
+  fs.appendFile(exports.paths.list, url, function(err) {
+    if(err) {
+      console.log('Error writing to file!');
     } else {
-      //write url to siteList
-    }
-    callback();
-  })
+      callback();
+    } 
+  }); //end of adding site to list
   return;
 };
+
 
 exports.isUrlArchived = function(url, callback) {
   fs.readdir(exports.paths.archivedSites, function(err, sites) {
@@ -72,13 +73,9 @@ exports.isUrlArchived = function(url, callback) {
 
 exports.downloadUrls = function(urlArray) {
   for(var i = 0; i < urlArray.length; i++) {
-    console.log(exports.paths.archivedSites + '/' + urlArray[i]);
-    var file = fs.createWriteStream(exports.paths.archivedSites + '/' + urlArray[i]);
-    http.get('http://' + urlArray[i], function (res) {
-      res.pipe(file);
-      file.on('finish', function() {
-        file.close();
-      });
+    var destination = fs.createWriteStream(exports.paths.archivedSites + '/' + urlArray[i]);
+    request('http://' + urlArray[i]).pipe(destination).on('error', function(err) {
+      console.log(err);
     });
   }
 };

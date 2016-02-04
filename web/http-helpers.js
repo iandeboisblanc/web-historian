@@ -24,6 +24,15 @@ exports.serveAssets = function(res, asset, callback) {
   })
 };
 
+exports.sendToLoading = function(res) {
+  exports.serveAssets(res, archive.paths.siteAssets + '/loading.html', function(data) {
+    headers['Content-Type'] = 'text/html';
+    res.writeHead(302, headers);
+    res.end(data);
+    return;
+  });
+}
+
 
 
 // As you progress, keep thinking about what helper functions you can put here!

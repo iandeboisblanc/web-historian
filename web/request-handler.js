@@ -57,20 +57,21 @@ exports.handleRequest = function (req, res) {
     })
     req.on('end', function() {
       var site = input.slice(4) + '\n';
-      fs.appendFile(paths.list, site, function(err) {
-        if(err) {
-          console.log('Error writing to file!');
-          res.writeHead(500, headers);
-          res.end('Error writing to file');
-        } else {
-          serveAssets(res, paths.siteAssets + '/loading.html', function(data) {
-            headers['Content-Type'] = 'text/html';
-            res.writeHead(302, headers);
-            res.end(data);
-            return;
+      archive.isUrlInList(site, function(is) {
+        if(is) {
+          archive.isUrlArchived(site, function(is) {
+            if(is) {
+              //serve page
+            } else { //if is not archived
+              helpers.sendToLoading(res);
+            }
+          })
+        } else { //if is not in list
+          archive.addUrlToList(site, function() {
+            helpers.sendToLoading(res);
           });
-        }
-      })
-    })
-  }
+        } //end of if url is not in list
+      }); // end of isURLInList
+    }); //end of req.on('end')
+  } //end of if Post
 };
