@@ -73,9 +73,11 @@ exports.isUrlArchived = function(url, callback) {
 
 exports.downloadUrls = function(urlArray) {
   for(var i = 0; i < urlArray.length; i++) {
-    var destination = fs.createWriteStream(exports.paths.archivedSites + '/' + urlArray[i]);
-    request('http://' + urlArray[i]).pipe(destination).on('error', function(err) {
-      console.log(err);
-    });
+    if(urlArray[i].length) {
+      var destination = fs.createWriteStream(exports.paths.archivedSites + '/' + urlArray[i]);
+      request('http://' + urlArray[i]).pipe(destination).on('error', function(err) {
+        console.log(err);
+      });
+    }
   }
 };

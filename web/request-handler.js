@@ -6,6 +6,7 @@ var paths = archive.paths;
 // require more modules/folders here!
 var headers = helpers.headers;
 var serveAssets = helpers.serveAssets;
+var site = '';
 
 exports.handleRequest = function (req, res) {
 
@@ -43,6 +44,9 @@ exports.handleRequest = function (req, res) {
             return;
           });
         }
+        else {
+          res.end();
+        }
       }
     }
   }
@@ -52,18 +56,28 @@ exports.handleRequest = function (req, res) {
       input += data;
     })
     req.on('end', function() {
-      var site = input.slice(4) + '\n';
+      var site = input.slice(4);
       archive.isUrlInList(site, function(is) {
         if(is) {
+          console.log('post requested site is already in list');
           archive.isUrlArchived(site, function(is) {
             if(is) {
-              helpers.sendToPage(res, site);
-            } else { //if is not archived
+              console.log('post requested site is already archived. Routing to', site);
+              // helpers.sendToPage(res, site);
+              helpers.serveAssets(res, archive.paths.archivedSites + '/' + site, function(data) {
+                headers['Content-Type'] = 'text/html';
+                res.writeHead(200, headers);
+                res.write(data);
+              });
+            } 
+            else { //if is not archived
+              console.log('post requested site is not yet archived. Routing to loading page...');
               helpers.sendToLoading(res);
             }
           })
         } else { //if is not in list
-          archive.addUrlToList(site, function() {
+          console.log('post requested site is not yet in list. Adding...');
+          archive.addUrlToList(site + '\n', function() {
             helpers.sendToLoading(res);
           });
         } //end of if url is not in list

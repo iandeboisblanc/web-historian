@@ -11,14 +11,13 @@ exports.headers = headers = {
 };
 
 exports.serveAssets = function(res, asset, callback) {
-  // Write some code here that helps serve up your static files!
-  // (Static files are things like html (yours or archived from others...),
-  // css, or anything that doesn't change often.)
-  fs.readFile(asset, function(err, data) {
+  console.log('serve assets is reading from here:', asset);
+  fs.readFile(asset, 'utf-8', function(err, data) {
     if(err) {
       console.log('error reading file!');
       res.end('ERROR READING FILE');
     } else {
+      // console.log('serve assets returns this:', data)
       callback(data);
     }
   })
@@ -38,6 +37,7 @@ exports.sendToPage = function(res, url) {
     headers['Content-Type'] = 'text/html';
     res.writeHead(200, headers);
     res.end(data);
+    return;
   }); 
 };
 
